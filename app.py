@@ -1,71 +1,48 @@
-from flask import Flask, request, render_template, jsonify
-import pandas as pd
-import numpy as np
-from scipy.spatial.distance import cdist
-from sklearn.preprocessing import StandardScaler
+from flask import Flask, render_template, request, jsonify
 import spotipy
-from spotipy.oauth2 import SpotifyOAuth
-from collections import defaultdict
+from spotipy.oauth2 import SpotifyClientCredentials
+import pickle
+import random
+import pandas as pd
+from scipy.sparse import csr_matrix
 
-app = Flask(__name__)
+app = Flask(__name__, static_folder='Content')
 
-# Spotify API credentials
-CLIENT_ID = '9eea9297dde44424a86b424e6fb81d6a'
-CLIENT_SECRET = '2d0ff0c8165a4249b64f17f985172efc'
-REDIRECT_URI = 'http://127.0.0.1:5000'
+client_credentials_manager = SpotifyClientCredentials(client_id='380a6b3535dc420a905dccf328a0e165', client_secret='b0ca7947448246d28aafc40f49610cf4')
+sp = spotipy.Spotify(client_credentials_manager=client_credentials_manager)
 
-# Authenticate with user permission
-scope = 'user-top-read user-library-read user-read-recently-played'
-sp = spotipy.Spotify(auth_manager=SpotifyOAuth(client_id=CLIENT_ID,
-                                               client_secret=CLIENT_SECRET,
-                                               redirect_uri=REDIRECT_URI,
-                                               scope=scope))
+# Function to search for a song on Spotify by its title and artist name
+def search_song_on_spotify(query):
+    try:
+        results = sp.search(q=query, type='track', limit=1)
+        if results['tracks']['items']:
+            track = results['tracks']['items'][0]
+            return {
+                'title': track['name'],
+                'artist': track['artists'][0]['name'],
+                'spotify_id': track['id'],
+                'preview_url': track['preview_url'],
+                'external_url': track['external_urls']['spotify']
+            }
+        else:
+            return None
+    except Exception as e:
+        print(f"Error searching for song: {e}")
+        return None
 
-number_cols = ['valence', 'year', 'acousticness', 'danceability', 'duration_ms', 'energy', 'explicit',
-               'instrumentalness', 'key', 'liveness', 'loudness', 'mode', 'popularity', 'speechiness', 'tempo']
+@app.route('/', methods=['GET'])
+def index():
+    return render_template('Index.html')
 
-def get_all_spotify_data():
-    results = sp.current_user_saved_tracks(limit=50)
-    tracks = results['items']
-    spotify_data = []
-    for item in tracks:
-        track = item['track']
-        track_id = track['id']
-        audio_features = sp.audio_features(track_id)[0]
-        song_data = {
-            'name': track['name'],
-            'year': int(track['album']['release_date'][:4]),
-            'explicit': int(track['explicit']),
-            'duration_ms': track['duration_ms'],
-            'popularity': track['popularity'],
-            'artists': ', '.join(artist['name'] for artist in track['artists'])
-        }
-        song_data.update(audio_features)
-        spotify_data.append(song_data)
-    return pd.DataFrame(spotify_data)
-
-# **Mood-Based Recommendation System**
-def get_mood_recommendations(mood, n_songs=10):
-    mood_features = {
-        'happy': {'valence': (0.5, 1.0), 'energy': (0.5, 1.0)},
-        'sad': {'valence': (0.0, 0.5), 'energy': (0.0, 0.5)},
-        'energetic': {'energy': (0.7, 1.0)}
-    }
-    spotify_data = get_all_spotify_data()
-    mood_data = spotify_data.copy()
-    for feature, (low, high) in mood_features[mood].items():
-        mood_data = mood_data[(mood_data[feature] >= low) & (mood_data[feature] <= high)]
-    return mood_data.sample(n=n_songs)[['name', 'year', 'artists']].to_dict(orient='records')
-
-@app.route('/')
-def home():
-    return render_template('index.html')
-
-@app.route('/recommend', methods=['POST'])
-def recommend():
-    mood = request.form.get('mood')
-    recommendations = get_mood_recommendations(mood)
-    return jsonify(recommendations)
+@app.route('/search', methods=['GET'])
+def searchonspotify():
+    return render_template('SongList.html')
+    
+@app.route('/search', methods=['POST'])
+def search():
+    query = request.json.get('query')
+    search_result = search_song_on_spotify(query)
+    return jsonify(search_result)
 
 if __name__ == '__main__':
     app.run(debug=True)

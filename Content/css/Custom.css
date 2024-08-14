@@ -1,65 +1,28 @@
-body {
-    font-family: Arial, sans-serif;
-    background-color: #f4f4f9;
-    color: #333;
-    margin: 0;
-    padding: 20px;
+/* Loader Styles */
+.loader {
+    border: 8px solid #f3f3f3; /* Light grey */
+    border-top: 8px solid #1DB954; /* Spotify Green */
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    animation: spin 1s linear infinite;
+    margin: 20px auto;
+    display: none; /* Hidden by default */
 }
-h1 {
-    text-align: center;
-    color: #4CAF50;
-}
-.playlist {
-    cursor: pointer;
-    margin: 10px 0;
-    padding: 15px;
-    border: 2px solid #4CAF50;
-    border-radius: 10px;
-    background-color: #ffffff;
-    transition: background-color 0.3s;
-}
-.playlist:hover {
-    background-color: #e8f5e9;
-}
-.songs {
-    display: none;
-    margin-left: 20px;
-}
-.song {
-    display: flex;
+.overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7); /* Semi-transparent black */
+    display: none; /* Hidden by default */
+    justify-content: center;
     align-items: center;
-    margin: 10px 0;
-    padding: 10px;
-    border-bottom: 1px solid #ddd;
+    z-index: 9999; /* Ensure it's on top of everything */
 }
-.song-initial {
-    font-weight: bold;
-    color: #4CAF50;
-    margin-right: 10px;
-}
-.song-details {
-    display: flex;
-    flex-direction: column;
-}
-.song-details span {
-    margin: 2px 0;
-}
-.search-bar {
-    text-align: center;
-    margin-bottom: 20px;
-}
-.search-bar input {
-    padding: 10px;
-    width: 80%;
-    border: 2px solid #4CAF50;
-    border-radius: 5px;
-}
-.search-bar button {
-    padding: 10px;
-    border: 2px solid #4CAF50;
-    border-left: none;
-    background-color: #4CAF50;
-    color: white;
-    border-radius: 0 5px 5px 0;
-    cursor: pointer;
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
 }

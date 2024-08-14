@@ -3,65 +3,116 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Music Recommendation</title>
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <title>Music Recommendation App</title>
     <style>
         body {
-            background-color: #f8f9fa;
-            padding: 50px;
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background-color: #121212;
+            color: #FFFFFF;
         }
-        .container {
-            max-width: 600px;
-            background: #fff;
+
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 20px;
+            background-color: #1DB954;
+        }
+
+        .navbar h1 {
+            font-size: 24px;
+            margin: 0;
+            color: #FFFFFF;
+        }
+
+        .menu {
+            display: flex;
+            gap: 15px;
+        }
+
+        .menu a {
+            text-decoration: none;
+            color: #FFFFFF;
+            font-size: 18px;
+            padding: 8px 12px;
+            border-radius: 20px;
+            transition: background-color 0.3s;
+        }
+
+        .menu a:hover {
+            background-color: #1ED760;
+        }
+
+        .hero {
+            height: 80vh;
+            background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('https://your-image-url.com') center/cover no-repeat;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+        }
+
+        .hero h2 {
+            font-size: 48px;
+            margin: 0;
+        }
+
+        .hero p {
+            font-size: 20px;
+            margin-top: 20px;
+        }
+
+        .hero button {
+            margin-top: 30px;
+            padding: 10px 20px;
+            font-size: 18px;
+            color: #FFFFFF;
+            background-color: #1DB954;
+            border: none;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .hero button:hover {
+            background-color: #1ED760;
+        }
+
+        footer {
+            text-align: center;
             padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            background-color: #282828;
+        }
+
+        footer p {
+            margin: 0;
+            color: #B3B3B3;
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1 class="text-center">Music Recommendation System</h1>
-        <form id="recommendation-form">
-            <div class="form-group">
-                <label for="mood">Select your mood:</label>
-                <select class="form-control" id="mood" name="mood">
-                    <option value="happy">Happy</option>
-                    <option value="sad">Sad</option>
-                    <option value="energetic">Energetic</option>
-                </select>
-            </div>
-            <button type="submit" class="btn btn-primary btn-block">Get Recommendations</button>
-        </form>
-        <div id="recommendations" class="mt-4"></div>
+
+    <div class="navbar">
+        <h1>MyMusicApp</h1>
+        <div class="menu">
+            <a href="#discover">Discover</a>
+            <a href="/search">Search</a>
+            <a href="#playlists">Playlists</a>
+        </div>
     </div>
 
-    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
-    <script>
-        $(document).ready(function(){
-            $('#recommendation-form').on('submit', function(e){
-                e.preventDefault();
-                var mood = $('#mood').val();
-                $.ajax({
-                    url: '/recommend',
-                    method: 'POST',
-                    data: { mood: mood },
-                    success: function(response) {
-                        var recommendations = $('#recommendations');
-                        recommendations.empty();
-                        if(response.length === 0) {
-                            recommendations.append('<p>No recommendations found.</p>');
-                        } else {
-                            recommendations.append('<h3>Recommendations:</h3><ul class="list-group">');
-                            response.forEach(function(song) {
-                                recommendations.append('<li class="list-group-item"><strong>' + song.name + '</strong> by ' + song.artists + ' (' + song.year + ')</li>');
-                            });
-                            recommendations.append('</ul>');
-                        }
-                    }
-                });
-            });
-        });
-    </script>
+    <div class="hero">
+        <div>
+            <h2>Discover New Music</h2>
+            <p>Personalized recommendations just for you.</p>
+            <button>Get Started</button>
+        </div>
+    </div>
+
+    <footer>
+        <p>&copy; 2024 MyMusicApp. All Rights Reserved.</p>
+    </footer>
+
 </body>
 </html>

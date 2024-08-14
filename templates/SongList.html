@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Search Songs - MyMusicApp</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background-color: #121212;
+            color: #FFFFFF;
+        }
+
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 20px;
+            background-color: #1DB954;
+        }
+
+        .navbar h1 {
+            font-size: 24px;
+            margin: 0;
+            color: #FFFFFF;
+        }
+
+        .menu {
+            display: flex;
+            gap: 15px;
+        }
+
+        .menu a {
+            text-decoration: none;
+            color: #FFFFFF;
+            font-size: 18px;
+            padding: 8px 12px;
+            border-radius: 20px;
+            transition: background-color 0.3s;
+        }
+
+        .menu a:hover {
+            background-color: #1ED760;
+        }
+
+        .search-container {
+            padding: 40px 20px;
+            text-align: center;
+            background-color: #282828;
+        }
+
+        .search-container h2 {
+            font-size: 36px;
+            margin-bottom: 20px;
+        }
+
+        .search-container input[type="text"] {
+            width: 60%;
+            padding: 10px;
+            font-size: 18px;
+            border-radius: 20px;
+            border: none;
+            margin-right: 10px;
+        }
+
+        .search-container button {
+            padding: 10px 20px;
+            font-size: 18px;
+            color: #FFFFFF;
+            background-color: #1DB954;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .search-container button:hover {
+            background-color: #1ED760;
+        }
+
+        .results-container {
+            padding: 20px;
+        }
+
+        .song-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            border-bottom: 1px solid #333333;
+            transition: background-color 0.3s;
+        }
+
+        .song-item:hover {
+            background-color: #1DB954;
+            color: #000000;
+        }
+
+        .song-info {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .song-info .title {
+            font-size: 18px;
+        }
+
+        .song-info .artist {
+            font-size: 14px;
+            color: #B3B3B3;
+        }
+
+        .song-actions {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .song-actions button,
+        .song-actions a {
+            background: none;
+            border: none;
+            color: #FFFFFF;
+            cursor: pointer;
+            font-size: 18px;
+            transition: color 0.3s;
+            text-decoration: none;
+        }
+
+        .song-actions button:hover,
+        .song-actions a:hover {
+            color: #1ED760;
+        }
+
+        footer {
+            text-align: center;
+            padding: 20px;
+            background-color: #282828;
+        }
+
+        footer p {
+            margin: 0;
+            color: #B3B3B3;
+        }
+    </style>
+    <link rel="stylesheet" href="../Content/css/Custom.css">
+</head>
+<body>
+
+    <div class="navbar">
+        <h1>MyMusicApp</h1>
+        <div class="menu">
+            <a href="#discover">Discover</a>
+            <a href="#genres">Genres</a>
+            <a href="#playlists">Playlists</a>
+        </div>
+    </div>
+
+    <div class="search-container">
+        <h2>Search for a Song</h2>
+        <input type="text" id="song-title" placeholder="Enter song title and/or artist name...">
+        <button onclick="searchSong()">Search</button>
+        
+    <div class="overlay" id="overlay">
+        <div class="loader" id="loader"></div>
+    </div>
+    </div>
+
+    <div class="results-container" id="results-container">
+        <!-- Song search results will be displayed here -->
+    </div>
+
+    <footer>
+        <p>&copy; 2024 MyMusicApp. All Rights Reserved.</p>
+    </footer>
+
+    <script>
+        function searchSong() {
+            const query = document.getElementById('song-title').value;
+            const resultsContainer = document.getElementById('results-container');
+            resultsContainer.innerHTML = '';
+            displayLoader()
+            
+            fetch('/search', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ query: query })
+            })
+            .then(response => response.json())
+            .then(data => {
+                stopLoader();
+                displayResult(data);
+            })
+            .catch(error => {
+                stopLoader();
+                console.error('Error:', error);
+            });
+        }
+
+        function displayResult(data) {
+            const resultsContainer = document.getElementById('results-container');
+            resultsContainer.innerHTML = ''; 
+
+            if (data) {
+                const songItem = document.createElement('div');
+                songItem.className = 'song-item';
+
+                songItem.innerHTML = `
+                    <div class="song-info">
+                        <div>
+                            <div class="title">${data.title}</div>
+                            <div class="artist">${data.artist}</div>
+                        </div>
+                    </div>
+                    <div class="song-actions">
+                        <button onclick="playPreview('${data.preview_url}')">&#9658;</button>
+                        <a href="${data.external_url}" target="_blank">Open in Spotify</a>
+                    </div>
+                `;
+
+                resultsContainer.appendChild(songItem);
+            } else {
+                resultsContainer.innerHTML = '<p>No results found. Try searching for a different song or artist.</p>';
+            }
+        }
+
+        function playPreview(url) {
+            const audio = new Audio(url);
+            audio.play();
+        }
+    </script>
+
+</body>
+</html>
+
+<script src="../Content/js/Custom.js"></script>
