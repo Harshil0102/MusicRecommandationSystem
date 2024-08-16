@@ -15,3 +15,18 @@ function stopLoader() {
     overlay.style.display = 'none';
     loader.style.display = 'none';
 }
+
+function logout()
+{
+    Swal.fire({
+        title: "Are you sure want to logout?",
+        showCancelButton: true,
+        confirmButtonText: "Yes",
+        denyButtonText: `No`
+      }).then((result) => {
+        /* Read more about isConfirmed, isDenied below */
+        if (result.isConfirmed) {
+            window.location.href = "/";
+        } 
+      });
+}

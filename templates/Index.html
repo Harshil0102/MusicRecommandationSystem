@@ -94,13 +94,13 @@
 <body>
 
     <div class="navbar">
-        <h1>MyMusicApp</h1>
+        <h1>RockerZ</h1>
         <div class="menu">
             <a>Welcome, {{ session['mail'] }}</a>
             <a href="#discover">Discover</a>
             <a href="/search">Search</a>
             <a href="#playlists">Playlists</a>
-            <a href="{{ url_for('logout') }}">Logout</a>
+            <a onclick="logout()">Logout</a>
         </div>
     </div>
 
@@ -113,8 +113,10 @@
     </div>
 
     <footer>
-        <p>&copy; 2024 MyMusicApp. All Rights Reserved.</p>
+        <p>&copy; 2024 RockerZ. All Rights Reserved.</p>
     </footer>
 
 </body>
 </html>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="../Content/js/Custom.js"></script>
