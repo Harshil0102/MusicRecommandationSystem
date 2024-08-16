@@ -24,14 +24,10 @@ creds = ServiceAccountCredentials.from_json_keyfile_name('./credentials.json', s
 client = gspread.authorize(creds)
 sheet = client.open("credentials").sheet1
 spreadsheet = client.open("credentials")
+sheet_fav = spreadsheet.get_worksheet(1)
 
 # Access the worksheet by index (0-based index)
 sheet_fav = spreadsheet.get_worksheet(1)
-# email = "h1@gmail.com"
-# song = "shila ki jawani"
-# url = "https://www.youtube.com/watch?v=qcQKq4XABNk"
-# feed = 1
-##
 
 client_credentials_manager = SpotifyClientCredentials(client_id='380a6b3535dc420a905dccf328a0e165', client_secret='b0ca7947448246d28aafc40f49610cf4')
 sp = spotipy.Spotify(client_credentials_manager=client_credentials_manager)
@@ -62,7 +58,7 @@ def search_song_on_spotify(query):
 @app.route('/')
 def home():
         print("first")
-        return render_template('login.html')  # Ensure you have this template
+        return render_template('login.html') 
 
 @app.route('/login', methods=['POST'])
 def login():
@@ -74,13 +70,11 @@ def login():
         users = get_users_from_sheet()
         print(f"Users from sheet: {users}")
         if mail in users:
-            stored_password = str(users.get(mail)).strip()  # Convert stored password to string
+            stored_password = str(users.get(mail)).strip() 
             print(f"Stored password for '{mail}': '{stored_password}'")
             if stored_password == password:
                 print(f"Password matches for mail: {mail}")
                 session['mail'] = mail
-                # favourites(email,song,url,feed)
-             
                 return redirect(url_for('landing'))
             else:
                 print(f"Password does not match for mail: {mail}")
@@ -93,7 +87,7 @@ def login():
 @app.route('/signup', methods=['GET', 'POST'])
 def signup():
     if request.method == 'POST':
-        mail = request.form['mail'].lower()  # Convert email to lowercase
+        mail = request.form['mail'].lower() 
         password = request.form['password']
         retype_password = request.form['retype_password']
 
@@ -106,10 +100,6 @@ def signup():
         if mail in users:
             return render_template('first-time-user.html', error='Email already exists')
 
-        # Hash the password
-        # hashed_password = generate_password_hash(password, method='sha256')
-
-        # Add the user to Google Sheets
         add_user_to_sheet(mail, password)
 
         # Set session and redirect
@@ -123,35 +113,52 @@ def favourites(mail, song_title, url, feed):
     sheet_fav.append_row([mail, song_title, url, feed])
 
 def getfavourites(mail):
-    users = get_users_from_sheet()
+    # Retrieve all records from the Google Sheet
+    likedsongs = sheet_fav.get_all_records()
 
-    # Initialize an empty list to store favourites
-    favourites = []
+    liked_songs_list = []
 
-    # Iterate through each row in the users data
-    for user in users:
-        user_mail = user[0]  # Assuming 'mail' is in the first column
-        song_title = user[1]  # Assuming 'song_title' is in the second column
-        url = user[2]  # Assuming 'url' is in the third column
-        feed = user[3]  # Assuming 'feed' is in the fourth column, and converting it to an integer
+    normalized_mail = mail.lower().strip()
 
-        # Check if the mail matches and the feed value is 1
-        if user_mail == mail and feed == 1:
-           favourites.append({'song_title': song_title, 'url': url, 'feed': feed})
-    
-    return favourites
+    for record in likedsongs:
+        # Normalize the mail in the record for comparison
+        record_mail = record.get('mail', '').lower().strip()
+        song_title = record.get('song_title')
+        url = record.get('url')
 
-# favourites = getfavourites(mail)
-# print(favourites)  
+        if record_mail == normalized_mail:
+            liked_songs_list.append({
+                'mail': mail,
+                'song_title': song_title,
+                'url': url
+            })
+
+    # Return the list of liked songs
+    return liked_songs_list
 
 def add_user_to_sheet(email, password):
     # Append the user data to the sheet
     sheet.append_row([email, password])
     # Open your Google Sheet
-   # sheet = client.open("credentials").sheet1
+
+@app.route('/likesong', methods=['POST'])
+def like_song():
+    data = request.get_json()
+    title = data.get('title')
+    url = data.get('url')
+    feed = 1
+    mail = session['mail']
+    favourites(mail,title,url,feed);
+    return jsonify(success=True)    
     
 
-    
+@app.route('/likesonglist', methods=['GET'])
+def likesonglist():
+    mail = session['mail']
+    print(mail)
+    favourites = getfavourites(mail)
+    print(favourites)
+    return render_template('LikedSong.html', liked_songs=favourites)
 
 @app.route('/first-time-user')
 def first_time_user():
@@ -268,29 +275,6 @@ def get_spotify_track_info(title, artist):
         print(f"Error retrieving Spotify track info for {title} by {artist}: {e}")
         return None
 
-# def recommend_songs_for_playlist(n_neighbors=5, n_songs=5):
-#     user_id = random.choice(df_songs['user_id'].unique())
-#     user_code = df_songs[df_songs['user_id'] == user_id]['user_id_code'].iloc[0]
-#     user_vector = user_song_matrix[user_code]
-
-#     distances, indices = saved_model.kneighbors(user_vector, n_neighbors=n_neighbors)
-#     recommendations = []
-#     selected_indices = random.sample(list(indices.flatten()), n_songs)
-
-#     for index in selected_indices:
-#         song_title = df_songs.iloc[index]['title']
-#         artist_name = df_songs.iloc[index]['artist_name']
-#         track_info = get_spotify_track_info(song_title, artist_name)
-#         if track_info:
-#             recommendations.append(track_info)
-
-#     return recommendations
-
-# @app.route('/get_playlist_songs', methods=['POST'])
-# def get_playlist_songs():
-#     playlist_songs = recommend_songs_for_playlist()
-#     return jsonify(playlist_songs)
-
 def get_spotify_track_info(song_title, artist_name):
     spotify_id = get_spotify_track_id(song_title, artist_name)
     if spotify_id:
@@ -304,15 +288,12 @@ def get_spotify_track_info(song_title, artist_name):
     return None
 
 def recommend_songs_for_playlist(n_neighbors=5, n_songs=5):
-    # Randomly select a user ID from the dataset
     user_id = random.choice(df_songs['user_id'].unique())
     
-    # Get the corresponding user_index from the encoded user_id_code
     user_code = df_songs[df_songs['user_id'] == user_id]['user_id_code'].iloc[0]
     
     user_vector = user_song_matrix_csr[user_code]
 
-    # Find the nearest neighbors using the loaded model
     distances, indices = saved_model.kneighbors(user_vector, n_neighbors=n_neighbors)
     
     recommendations = []
@@ -340,20 +321,6 @@ def get_playlist_songs():
 @app.route('/playlists')
 def playlists():
     return render_template('playlists.html')
-
-
-
-
-
-
-
-
-
-
-
-# @app.route('/playlists')
-# def playlists():
-#     return render_template('playlists.html')
 
 @app.route('/player')
 def playler():

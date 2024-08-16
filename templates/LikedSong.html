@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Likes - RockerZ</title>
+    <link rel="stylesheet" href="../Content/css/Custom.css">
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background-color: #121212;
+            color: #FFFFFF;
+        }
+
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 20px;
+            background-color: #1DB954;
+        }
+
+        .navbar h1 {
+            font-size: 24px;
+            margin: 0;
+            color: #FFFFFF;
+        }
+
+        .menu {
+            display: flex;
+            gap: 15px;
+        }
+
+        .menu a {
+            text-decoration: none;
+            color: #FFFFFF;
+            font-size: 18px;
+            padding: 8px 12px;
+            border-radius: 20px;
+            transition: background-color 0.3s;
+        }
+
+        .menu a:hover {
+            background-color: #1ED760;
+        }
+
+        .liked-songs-container {
+            padding: 20px;
+            background-color: #282828;
+        }
+
+        .liked-songs-container h2 {
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+
+        .song-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            border-bottom: 1px solid #333333;
+            transition: background-color 0.3s;
+        }
+
+        .song-item:hover {
+            background-color: #1DB954;
+            color: #000000;
+        }
+
+        .song-info {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .song-info .title {
+            font-size: 18px;
+        }
+
+        .song-info .artist {
+            font-size: 14px;
+            color: #B3B3B3;
+        }
+
+        .song-actions {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .song-actions a {
+            background: none;
+            border: none;
+            color: #FFFFFF;
+            cursor: pointer;
+            font-size: 18px;
+            transition: color 0.3s;
+            text-decoration: none;
+        }
+
+        .song-actions a:hover {
+            color: #1ED760;
+        }
+
+        footer {
+            text-align: center;
+            padding: 20px;
+            background-color: #282828;
+        }
+
+        footer p {
+            margin: 0;
+            color: #B3B3B3;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="navbar">
+        <h1><a href="/home" class="Logo">ROCKERZ </a></h1>
+        <div class="menu">
+            <a>Welcome, {{ session['mail'] }}</a>
+            <a href="/search">Search</a>
+            <a href="/playlists">Playlists</a>
+            <a href="/player">Player</a>
+            <a href="/likesonglist">Likes</a>
+            <a href="/">Logout</a>
+        </div>
+    </div>
+
+    <div class="liked-songs-container">
+        <h2>Your Likes</h2>
+        <div id="liked-songs-list">
+            {% for song in liked_songs %}
+            <div class="song-item">
+                <div class="song-info">
+                    <div>
+                        <div class="title">{{ song['song_title'] }}</div>
+                    </div>
+                </div>
+                <div class="song-actions">
+                    <a href="{{ song['url'] }}" target="_blank">Open in Spotify</a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <footer>
+        <p>&copy; 2024 RockerZ. All Rights Reserved.</p>
+    </footer>
+
+</body>
+</html>

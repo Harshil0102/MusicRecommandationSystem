@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Music Recommendation</title>
     <link rel="stylesheet" href="../Content/css/Custom.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
         body {
             margin: 0;
@@ -144,6 +145,7 @@
             <a href="/search">Search</a>
             <a href="/playlists">Playlists</a>
             <a href="/player">Player</a>
+            <a href="/likesonglist">Likes</a>
             <a href="/">Logout</a>
         </div>
     </div>
@@ -186,7 +188,12 @@
                 if (recommendations.length > 0) {
                     recommendations.forEach(song => {
                         const listItem = document.createElement('li');
-                        listItem.innerHTML = `<strong>${song.title}</strong> by ${song.artist} <br> <a href="${song.external_url}" target="_blank">Listen on Spotify</a>`;
+                        listItem.innerHTML = `
+    <strong>${song.title}</strong> by ${song.artist} 
+    <br> 
+    <a href="${song.external_url}" target="_blank">Listen on Spotify</a>
+    <i class="fas fa-heart" style="color: red; cursor: pointer;" onclick="likeSong('${song.title}', '${song.external_url}')"></i>
+`;
                         list.appendChild(listItem);
                     });
                 } else {
@@ -198,6 +205,50 @@
                 console.error('Error:', error);
             });
         };
+        function likeSong(title, url) {
+            fetch('/likesong', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ title: title, url: url }),
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Show SweetAlert on success
+                        Swal.fire({
+                            title: 'Success!',
+                            text: 'Song liked successfully!',
+                            icon: 'success',
+                            confirmButtonText: 'OK'
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                window.location.href = '/likesonglist';
+                            }
+                        });
+
+                    } else {
+                        // Show error SweetAlert if something went wrong
+                        Swal.fire({
+                            title: 'Error!',
+                            text: 'Could not like the song.',
+                            icon: 'error',
+                            confirmButtonText: 'OK'
+                        });
+                    }
+                })
+                .catch((error) => {
+                    console.error('Error:', error);
+                    // Show error SweetAlert on network error
+                    Swal.fire({
+                        title: 'Error!',
+                        text: 'There was a problem with the server.',
+                        icon: 'error',
+                        confirmButtonText: 'OK'
+                    });
+                });
+        }
     </script>
 </body>
 </html>
