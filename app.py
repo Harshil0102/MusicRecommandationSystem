@@ -223,7 +223,7 @@ def get_spotify_track_id(title, artist):
 
 
 # Load the saved model at the start of your app
-saved_model = joblib.load('../MusicRecommandationSystem/collaborative filtering/best_knn_model.pkl')
+saved_model = joblib.load('collaborative filtering/best_knn_model.pkl')
 
 # Assuming df_songs has 'user_id_code', 'song_id_code', and 'listen_count'
 user_song_matrix = df_songs.pivot(index='user_id_code', columns='song_id_code', values='listen_count').fillna(0)
