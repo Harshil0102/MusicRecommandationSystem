@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recommended Playlist - MyMusicApp</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background-color: #121212;
+            color: #FFFFFF;
+        }
+
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 20px;
+            background-color: #1DB954;
+        }
+
+        .navbar h1 {
+            font-size: 24px;
+            margin: 0;
+            color: #FFFFFF;
+        }
+
+        .menu {
+            display: flex;
+            gap: 15px;
+        }
+
+        .menu a {
+            text-decoration: none;
+            color: #FFFFFF;
+            font-size: 18px;
+            padding: 8px 12px;
+            border-radius: 20px;
+            transition: background-color 0.3s;
+        }
+
+        .menu a:hover {
+            background-color: #1ED760;
+        }
+
+        .playlist-container {
+            padding: 40px 20px;
+            text-align: center;
+            background-color: #282828;
+        }
+
+        .playlist-container h2 {
+            font-size: 36px;
+            margin-bottom: 20px;
+        }
+
+        .album-info {
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+
+        .songs-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .song-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            border-bottom: 1px solid #333333;
+            transition: background-color 0.3s;
+        }
+
+        .song-item:hover {
+            background-color: #1DB954;
+            color: #000000;
+        }
+
+        .song-info {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .song-info .title {
+            font-size: 18px;
+        }
+
+        .song-info .artist {
+            font-size: 14px;
+            color: #B3B3B3;
+        }
+
+        .song-actions {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .song-actions button,
+        .song-actions a {
+            background: none;
+            border: none;
+            color: #FFFFFF;
+            cursor: pointer;
+            font-size: 18px;
+            transition: color 0.3s;
+            text-decoration: none;
+        }
+
+        .song-actions button:hover,
+        .song-actions a:hover {
+            color: #1ED760;
+        }
+
+        footer {
+            text-align: center;
+            padding: 20px;
+            background-color: #282828;
+        }
+
+        footer p {
+            margin: 0;
+            color: #B3B3B3;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="navbar">
+        <h1>MyMusicApp</h1>
+        <div class="menu">
+            <a href="#discover">Discover</a>
+            <a href="#genres">Genres</a>
+            <a href="#playlists">Playlists</a>
+        </div>
+    </div>
+
+    <div class="playlist-container">
+        <h2>Recommended Playlist</h2>
+        <div class="album-info" id="album-info">
+            Number of Songs: <span id="song-count">{{ recommendations|length }}</span>
+        </div>
+        <ul class="songs-list" id="songs-list">
+            {% for song in recommendations %}
+            <li class="song-item">
+                <div class="song-info">
+                    <span class="title">{{ song.Title }}</span>
+                    <span class="artist">{{ song.Artist }}</span>
+                </div>
+                <div class="song-actions">
+                    <a href="{{ song['Spotify Link'] }}" target="_blank">Play on Spotify</a>
+                </div>
+            </li>
+            {% endfor %}
+        </ul>
+    </div>
+
+    <footer>
+        <p>&copy; 2024 MyMusicApp. All Rights Reserved.</p>
+    </footer>
+</body>
+</html>

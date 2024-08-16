@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Music Recommendation App</title>
+    <title>Music Recommendation</title>
+    <link rel="stylesheet" href="../Content/css/Custom.css">
     <style>
         body {
             margin: 0;
@@ -64,7 +65,6 @@
         }
 
         .hero button {
-            margin-top: 30px;
             padding: 10px 20px;
             font-size: 18px;
             color: #FFFFFF;
@@ -73,22 +73,66 @@
             border-radius: 30px;
             cursor: pointer;
             transition: background-color 0.3s;
+            margin-top: 20px;
         }
 
         .hero button:hover {
             background-color: #1ED760;
         }
 
+        #recommendations {
+            margin-top: 20px;
+            text-align: left;
+            width: 60%;
+            margin: 0 auto;
+        }
+
+        #recommendations h3 {
+            font-size: 24px;
+            border-bottom: 2px solid #444;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+
+        #recommendations ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        #recommendations ul li {
+            padding: 10px;
+            border-bottom: 1px solid #444;
+        }
+
+        #recommendations ul li:last-child {
+            border-bottom: none;
+        }
+
+        #recommendations ul li strong {
+            font-size: 18px;
+        }
+
+        #recommendations ul li a {
+            color: #1DB954;
+            text-decoration: none;
+        }
+
+        #recommendations ul li a:hover {
+            text-decoration: underline;
+        }
+
         footer {
             text-align: center;
             padding: 20px;
-            background-color: #282828;
+            background-color: #1DB954;
+            color: #FFFFFF;
         }
 
         footer p {
             margin: 0;
-            color: #B3B3B3;
+            font-size: 14px;
         }
+
     </style>
 </head>
 <body>
@@ -96,11 +140,9 @@
     <div class="navbar">
         <h1>MyMusicApp</h1>
         <div class="menu">
-            <a>Welcome, {{ session['mail'] }}</a>
             <a href="#discover">Discover</a>
             <a href="/search">Search</a>
-            <a href="#playlists">Playlists</a>
-            <a href="{{ url_for('logout') }}">Logout</a>
+            <a href="/playlists">Playlists</a>
         </div>
     </div>
 
@@ -108,13 +150,53 @@
         <div>
             <h2>Discover New Music</h2>
             <p>Personalized recommendations just for you.</p>
-            <button>Get Started</button>
+            <button id="recommendBtn">Generate Recommendation</button>
         </div>
+    </div>
+    <div class="overlay" id="overlay">
+        <div class="loader" id="loader"></div>
+    </div>
+
+    <div id="recommendations">
+        <h3>Your Recommendations:</h3>
+        <ul id="recommendation-list"></ul>
     </div>
 
     <footer>
         <p>&copy; 2024 MyMusicApp. All Rights Reserved.</p>
     </footer>
 
+    <script>
+        document.getElementById('recommendBtn').onclick = function () {
+            displayLoader()
+            fetch('/get_recommendations', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            })
+            .then(response => response.json())
+            .then(recommendations => {
+                stopLoader();
+                const list = document.getElementById('recommendation-list');
+                list.innerHTML = '';  // Clear any previous recommendations
+
+                if (recommendations.length > 0) {
+                    recommendations.forEach(song => {
+                        const listItem = document.createElement('li');
+                        listItem.innerHTML = `<strong>${song.title}</strong> by ${song.artist} <br> <a href="${song.external_url}" target="_blank">Listen on Spotify</a>`;
+                        list.appendChild(listItem);
+                    });
+                } else {
+                    list.innerHTML = '<li>No recommendations found.</li>';
+                }
+            })
+            .catch(error => {
+                stopLoader();
+                console.error('Error:', error);
+            });
+        };
+    </script>
 </body>
 </html>
+<script src="../Content/js/Custom.js"></script>
