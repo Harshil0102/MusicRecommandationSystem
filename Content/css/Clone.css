@@ -1,0 +1,203 @@
+
+@import url('https://fonts.googleapis.com/css2?family=Ubuntu&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Ubuntu&display=swap');
+
+body{
+    background-color: antiquewhite;
+}
+
+*{
+    margin: 0;
+    padding: 0;
+}
+
+nav{
+    font-family: 'ubuntu', 'sans-serif';
+}
+
+nav ul{
+    display: flex;
+    align-items: center;
+    list-style: none;
+    height: 60px;
+    background-color: #1DB954;
+    color: white;
+} 
+nav ul li{
+    padding:0 12px ;
+}
+
+.brand img{
+    width: 44px;
+    padding: 0 5px;
+}
+
+.brand{
+    display: flex;
+    align-items: center;
+    font-weight: bolder;
+    font-size: large;
+}
+
+.container{
+    min-height: 65vh;
+    background-color: black;
+    color: white;
+    font-family: 'varela Round', sans-serif;
+    display: flex ;
+    width: 80%;
+    margin: 23px auto;
+    border-radius: 12px;
+    padding: 34px;
+    background-image: url("../../bgimg.jpg");
+    
+    /* display: flow-root; */
+}
+
+
+
+.bottom{
+    position: sticky;
+    height: 90px;
+    background-color: black;
+    color: white;
+    bottom:  0px;
+    display: flex;
+    align-items: center;
+    /* text-align: center; */
+    justify-content: center;
+    flex-direction: column;
+}
+.mediaIcons{
+    padding: 10px 0px;
+    cursor: pointer;
+}
+
+#myProgressBar{
+    width: 80vw;
+    cursor: pointer;
+}
+
+.songItemsContainer{
+    margin-top: 30px;
+    
+}
+
+.songItems{
+    height: 45px ;
+    display: flex;
+    /* width: 80%; */
+    background-color: white;
+    color: black;
+    margin: 12px 0;
+    justify-content: space-between;
+    align-items: center;
+    border-radius: 10px;
+    cursor: pointer;
+}
+
+.songItems:hover {
+    background-color: rgb(49, 120, 234);
+}
+
+.songName{
+    font-family: "Varela";
+    font-weight: bolder;
+    font-size: larger;
+}
+
+.timeStamp{
+    padding: 0 12px;
+    margin: 0 12px;
+}
+
+.timeStamp i {
+    cursor: pointer;
+}
+
+.songItems img{
+    width: 40px;
+    margin: 0 30px ;
+    border-radius: 5px;
+
+}
+.songInfo{
+position:absolute;
+left: 10vw;
+padding: 10px;
+font-family: 'Varel',sans-serif;
+    
+}
+.songInfo img  {
+    opacity: 0;
+    transition: opacity 0.5s ease-in;
+}
+
+@media screen and (max-width: 800px) {
+ 
+ .container{
+    flex-wrap: wrap;
+ }
+   
+ .row{
+    flex-wrap: wrap;
+    font-size: smaller;
+    }
+    .timeStamp{
+        display: flex;
+        justify-content: center;
+    }
+    .songName{
+        font-size: 3vw;
+    }
+    
+    .songInfo{
+        flex-wrap: wrap;
+        font-size: small;
+        justify-content:left;
+    }
+}
+.Logo{
+    font-family: Arial, sans-serif; /* Use a clean, sans-serif font */
+    font-size: 24px; /* Adjust the size as needed */
+    color: #ffffff; /* White text color */
+    background-color: #28a745; /* Green background color, similar to the original */
+    padding: 10px 20px; /* Add some padding around the text */
+    border-radius: 5px; /* Rounded corners */
+    text-transform: uppercase; /* Make the text uppercase */
+    text-align: center; /* Center the text */
+    text-decoration: none; /* Remove the underline */
+    display: inline-block;
+}
+
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 20px;
+    background-color: #1DB954;
+}
+
+.navbar h1 {
+    font-size: 24px;
+    margin: 0;
+    color: #FFFFFF;
+}
+
+.menu {
+    display: flex;
+    gap: 15px;
+}
+
+.menu a {
+    text-decoration: none;
+    color: #FFFFFF;
+    font-size: 18px;
+    padding: 8px 12px;
+    border-radius: 20px;
+    transition: background-color 0.3s;
+}
+
+.menu a:hover {
+    background-color: #1ED760;
+}

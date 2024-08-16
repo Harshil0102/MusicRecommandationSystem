@@ -138,12 +138,13 @@
 <body>
 
     <div class="navbar">
-        <h1>RockerZ</h1>
+        <h1><a href="/home" class="Logo">ROCKERZ </a></h1>
         <div class="menu">
-            <a href="#discover">Discover</a>
+            <a>Welcome, {{ session['mail'] }}</a>
             <a href="/search">Search</a>
             <a href="/playlists">Playlists</a>
-            <a onclick="logout()">Logout</a>
+            <a href="/player">Player</a>
+            <a href="/">Logout</a>
         </div>
     </div>
 
