@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Recommended Playlist - MyMusicApp</title>
+    <title>Music Recommendation</title>
+    <link rel="stylesheet" href="../Content/css/Custom.css">
     <style>
         body {
             margin: 0;
@@ -44,124 +45,168 @@
             background-color: #1ED760;
         }
 
-        .playlist-container {
-            padding: 40px 20px;
+        .hero {
+            height: 80vh;
+            background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('https://your-image-url.com') center/cover no-repeat;
+            display: flex;
+            justify-content: center;
+            align-items: center;
             text-align: center;
-            background-color: #282828;
         }
 
-        .playlist-container h2 {
-            font-size: 36px;
-            margin-bottom: 20px;
-        }
-
-        .album-info {
-            font-size: 24px;
-            margin-bottom: 20px;
-        }
-
-        .songs-list {
-            list-style: none;
-            padding: 0;
+        .hero h2 {
+            font-size: 48px;
             margin: 0;
         }
 
-        .song-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 15px;
-            border-bottom: 1px solid #333333;
-            transition: background-color 0.3s;
+        .hero p {
+            font-size: 20px;
+            margin-top: 20px;
         }
 
-        .song-item:hover {
-            background-color: #1DB954;
-            color: #000000;
-        }
-
-        .song-info {
-            display: flex;
-            align-items: center;
-            gap: 20px;
-        }
-
-        .song-info .title {
+        .hero button {
+            padding: 10px 20px;
             font-size: 18px;
-        }
-
-        .song-info .artist {
-            font-size: 14px;
-            color: #B3B3B3;
-        }
-
-        .song-actions {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .song-actions button,
-        .song-actions a {
-            background: none;
-            border: none;
             color: #FFFFFF;
+            background-color: #1DB954;
+            border: none;
+            border-radius: 30px;
             cursor: pointer;
+            transition: background-color 0.3s;
+            margin-top: 20px;
+        }
+
+        .hero button:hover {
+            background-color: #1ED760;
+        }
+
+        #recommendations {
+            margin-top: 20px;
+            text-align: left;
+            width: 60%;
+            margin: 0 auto;
+        }
+
+        #recommendations h3 {
+            font-size: 24px;
+            border-bottom: 2px solid #444;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+
+        #recommendations ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        #recommendations ul li {
+            padding: 10px;
+            border-bottom: 1px solid #444;
+        }
+
+        #recommendations ul li:last-child {
+            border-bottom: none;
+        }
+
+        #recommendations ul li strong {
             font-size: 18px;
-            transition: color 0.3s;
+        }
+
+        #recommendations ul li a {
+            color: #1DB954;
             text-decoration: none;
         }
 
-        .song-actions button:hover,
-        .song-actions a:hover {
-            color: #1ED760;
+        #recommendations ul li a:hover {
+            text-decoration: underline;
         }
 
         footer {
             text-align: center;
             padding: 20px;
-            background-color: #282828;
+            background-color: #1DB954;
+            color: #FFFFFF;
         }
 
         footer p {
             margin: 0;
-            color: #B3B3B3;
+            font-size: 14px;
         }
+
     </style>
 </head>
 <body>
 
     <div class="navbar">
-        <h1>MyMusicApp</h1>
+        <h1><a href="/home" class="Logo">ROCKERZ </a></h1>
         <div class="menu">
-            <a href="#discover">Discover</a>
-            <a href="#genres">Genres</a>
-            <a href="#playlists">Playlists</a>
+            <a>Welcome, {{ session['mail'] }}</a>
+            <a href="/search">Search</a>
+            <a href="/playlists">Playlists</a>
+            <a href="/player">Player</a>
+            <a href="/">Logout</a>
         </div>
     </div>
 
-    <div class="playlist-container">
-        <h2>Recommended Playlist</h2>
-        <div class="album-info" id="album-info">
-            Number of Songs: <span id="song-count">{{ recommendations|length }}</span>
+    <div class="hero">
+        <div>
+            <h2>New Music Playlist</h2>
+            <p>Personalized Recommendations Playlist just for you.</p>
+            <button id="recommendBtn">Generate Recommendation</button>
         </div>
-        <ul class="songs-list" id="songs-list">
-            {% for song in recommendations %}
-            <li class="song-item">
-                <div class="song-info">
-                    <span class="title">{{ song.Title }}</span>
-                    <span class="artist">{{ song.Artist }}</span>
-                </div>
-                <div class="song-actions">
-                    <a href="{{ song['Spotify Link'] }}" target="_blank">Play on Spotify</a>
-                </div>
-            </li>
-            {% endfor %}
-        </ul>
+    </div>
+    <div class="overlay" id="overlay">
+        <div class="loader" id="loader"></div>
+    </div>
+
+    <div id="recommendations">
+        <h3>Playlists:</h3>
+        <ul id="recommendation-list"></ul>
     </div>
 
     <footer>
         <p>&copy; 2024 MyMusicApp. All Rights Reserved.</p>
     </footer>
+
+    <script>
+        document.getElementById('recommendBtn').onclick = function () {
+            displayLoader()
+            fetch('/get_playlist_songs', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            })
+            .then(response => response.json())
+            .then(recommendations => {
+                stopLoader();
+                const list = document.getElementById('recommendation-list');
+                list.innerHTML = '';  // Clear any previous recommendations
+
+                if (recommendations.length > 0) {
+                    recommendations.forEach(song => {
+                        const listItem = document.createElement('li');
+                        listItem.innerHTML = `<strong>${song.title}</strong> by ${song.artist} <br> <a href="${song.external_url}" target="_blank">Listen on Spotify</a>`;
+                        list.appendChild(listItem);
+                    });
+                } else {
+                    list.innerHTML = '<li>No recommendations found.</li>';
+                }
+            })
+            .catch(error => {
+                stopLoader();
+                console.error('Error:', error);
+            });
+        };
+
+        function displayLoader() {
+            document.getElementById('overlay').style.display = 'block';
+        }
+
+        function stopLoader() {
+            document.getElementById('overlay').style.display = 'none';
+        }
+    </script>
 </body>
 </html>
+<script src="../Content/js/Custom.js"></script>

@@ -7,6 +7,9 @@ import pandas as pd
 from scipy.sparse import csr_matrix
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
+import joblib
+import random
+
 
 app = Flask(__name__, static_folder='Content')
 
@@ -105,13 +108,17 @@ def search():
 model_path = 'collaborative filtering/best_knn_model.pkl'
 data_path = 'datasets/songs.csv'
 
-with open(model_path, 'rb') as file:
-    saved_model = pickle.load(file)
-
 df_songs = pd.read_csv(data_path)
+
+# Convert user_id and song_id to category codes
 df_songs['user_id_code'] = df_songs['user_id'].astype('category').cat.codes
 df_songs['song_id_code'] = df_songs['song_id'].astype('category').cat.codes
 
+# Check for any negative values in the codes
+if (df_songs['user_id_code'] < 0).any() or (df_songs['song_id_code'] < 0).any():
+    raise ValueError("Negative values found in user_id_code or song_id_code")
+
+# Create the user-song interaction matrix
 user_song_matrix = csr_matrix(
     (df_songs['listen_count'], (df_songs['user_id_code'], df_songs['song_id_code'])),
     shape=(df_songs['user_id_code'].nunique(), df_songs['song_id_code'].nunique())
@@ -128,10 +135,20 @@ def get_spotify_track_id(title, artist):
         print(f"Error retrieving Spotify ID for {title} by {artist}: {e}")
         return None
 
-def recommend_songs_random_user(n_neighbors=5, n_random=3):
+
+# Load the saved model at the start of your app
+saved_model = joblib.load('../MusicRecommandationSystem/collaborative filtering/best_knn_model.pkl')
+
+# Assuming df_songs has 'user_id_code', 'song_id_code', and 'listen_count'
+user_song_matrix = df_songs.pivot(index='user_id_code', columns='song_id_code', values='listen_count').fillna(0)
+
+# Convert the pivoted DataFrame to a CSR matrix
+user_song_matrix_csr = csr_matrix(user_song_matrix.values)
+
+def recommend_songs_random_user(n_neighbors=5, n_random=1):
     user_id = random.choice(df_songs['user_id'].unique())
     user_code = df_songs[df_songs['user_id'] == user_id]['user_id_code'].iloc[0]
-    user_vector = user_song_matrix[user_code]
+    user_vector = user_song_matrix_csr[user_code]
 
     distances, indices = saved_model.kneighbors(user_vector, n_neighbors=n_neighbors)
     recommendations = []
@@ -154,12 +171,131 @@ def recommend_songs_random_user(n_neighbors=5, n_random=3):
 
 @app.route('/get_recommendations', methods=['POST'])
 def get_recommendations():
-    recommendations = recommend_songs_random_user()
-    return jsonify(recommendations)
+    try:
+        recommendations = recommend_songs_random_user()
+        return jsonify(recommendations)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+def get_spotify_track_info(title, artist):
+    try:
+        results = sp.search(q=f'track:{title} artist:{artist}', type='track', limit=1)
+        if results['tracks']['items']:
+            track = results['tracks']['items'][0]
+            return {
+                'title': track['name'],
+                'artist': track['artists'][0]['name'],
+                'preview_url': track.get('preview_url'),
+                'external_url': track['external_urls']['spotify']
+            }
+        else:
+            return None
+    except Exception as e:
+        print(f"Error retrieving Spotify track info for {title} by {artist}: {e}")
+        return None
+
+# def recommend_songs_for_playlist(n_neighbors=5, n_songs=5):
+#     user_id = random.choice(df_songs['user_id'].unique())
+#     user_code = df_songs[df_songs['user_id'] == user_id]['user_id_code'].iloc[0]
+#     user_vector = user_song_matrix[user_code]
+
+#     distances, indices = saved_model.kneighbors(user_vector, n_neighbors=n_neighbors)
+#     recommendations = []
+#     selected_indices = random.sample(list(indices.flatten()), n_songs)
+
+#     for index in selected_indices:
+#         song_title = df_songs.iloc[index]['title']
+#         artist_name = df_songs.iloc[index]['artist_name']
+#         track_info = get_spotify_track_info(song_title, artist_name)
+#         if track_info:
+#             recommendations.append(track_info)
+
+#     return recommendations
+
+# @app.route('/get_playlist_songs', methods=['POST'])
+# def get_playlist_songs():
+#     playlist_songs = recommend_songs_for_playlist()
+#     return jsonify(playlist_songs)
+
+def get_spotify_track_info(song_title, artist_name):
+    spotify_id = get_spotify_track_id(song_title, artist_name)
+    if spotify_id:
+        track = sp.track(spotify_id)
+        return {
+            'title': track['name'],
+            'artist': track['artists'][0]['name'],
+            'preview_url': track['preview_url'],
+            'external_url': track['external_urls']['spotify']
+        }
+    return None
+
+def recommend_songs_for_playlist(n_neighbors=5, n_songs=5):
+    # Randomly select a user ID from the dataset
+    user_id = random.choice(df_songs['user_id'].unique())
+    
+    # Get the corresponding user_index from the encoded user_id_code
+    user_code = df_songs[df_songs['user_id'] == user_id]['user_id_code'].iloc[0]
+    
+    user_vector = user_song_matrix_csr[user_code]
+
+    # Find the nearest neighbors using the loaded model
+    distances, indices = saved_model.kneighbors(user_vector, n_neighbors=n_neighbors)
+    
+    recommendations = []
+    
+    # Randomly select a subset of the nearest neighbors
+    selected_indices = random.sample(list(indices.flatten()), n_songs)
+
+    for index in selected_indices:
+        song_title = df_songs.iloc[index]['title']
+        artist_name = df_songs.iloc[index]['artist_name']
+        track_info = get_spotify_track_info(song_title, artist_name)
+        if track_info:
+            recommendations.append(track_info)
+
+    return recommendations
+
+@app.route('/get_playlist_songs', methods=['POST'])
+def get_playlist_songs():
+    try:
+        playlist_songs = recommend_songs_for_playlist()
+        return jsonify(playlist_songs)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 @app.route('/playlists')
 def playlists():
     return render_template('playlists.html')
+
+
+
+
+
+
+
+
+
+
+
+# @app.route('/playlists')
+# def playlists():
+#     return render_template('playlists.html')
+
+@app.route('/player')
+def playler():
+    return render_template('Players.html')
+
+def get_spotify(title, artist):
+    try:
+        results = sp.search(q=f'track:{title} artist:{artist}', type='track', limit=10)
+        if results['tracks']['items']:
+            return results['tracks']['items'][0]['id']
+        else:
+            return None
+    except Exception as e:
+        print(f"Error retrieving Spotify ID for {title} by {artist}: {e}")
+        return None
 
 
 if __name__ == '__main__':

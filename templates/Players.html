@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Clone_Spotify</title>
+        <link rel="stylesheet" href="../Content/css/Clone.css">
+    </head>
+    <body>
+        <!-- navbar -->
+        <nav>
+            <div class="navbar">
+                <h1><a href="/home" class="Logo">ROCKERZ </a></h1>
+                <!-- <li>About</li> -->
+                <div class="menu">
+                    <a>Welcome, {{ session['mail'] }}</a>
+                    <a href="/search">Search</a>
+                    <a href="/playlists">Playlists</a>
+                    <a href="/player">Player</a>
+                    <a href="/">Logout</a>
+                </div>
+            </div>
+        </nav>
+
+
+        <!-- Container Of Spotify For Song Listing -->
+        <div class="container">
+            <div class="row">
+                <div class="SongList">
+                    <h1>Top Listed Songs :</h1>
+                    <div class="songItemsContainer">
+                        <div class="songItems">
+                            <img src="" id="SongImg">
+                            <span class="songName"> Starboy </span>
+                            <span class="duration"> <span class="timeStamp">03:50
+                                    <i id="0" class="fa-solid songItemsPlay
+                                        fa-play-circle"></i></span></span>
+                        </div>
+                        <div class="songItems">
+                            <img src="" id="SongImg">
+                            <span class="songName"> Starboy </span>
+                            <span class="duration"> <span class="timeStamp">02:43
+                                    <i id="1" class="fa-solid songItemsPlay
+                                        fa-play-circle"></i></span></span>
+                        </div>
+                        <div class="songItems">
+                            <img src="" id="SongImg">
+                            <span class="songName"> Starboy </span>
+                            <span class="duration"> <span class="timeStamp">02:39
+                                    <i id="2" class="fa-solid songItemsPlay
+                                        fa-play-circle"></i></span></span>
+                        </div>
+                        <div class="songItems">
+                            <img src="" id="SongImg">
+                            <span class="songName"> Starboy </span>
+                            <span class="duration"> <span class="timeStamp">02:47
+                                <i id="3" class="fa-solid songItemsPlay
+                                        fa-play-circle"></i></span></span>
+                        </div>
+                        <div class="songItems">
+                            <img src="" id="SongImg">
+                            <span class="songName"> Starboy </span>
+                            <span class="duration"> <span class="timeStamp">03:53
+                                    <i id="4" class="fa-solid songItemsPlay
+                                        fa-play-circle"></i></span></span>
+                        </div>
+                        <div class="songItems">
+                            <img src="" id="SongImg">
+                            <span class="songName"> Starboy </span>
+                            <span class="duration"> <span class="timeStamp">02:33
+                                    <i id="5" class="fa-solid songItemsPlay
+                                        fa-play-circle"></i></span></span>
+                        </div>
+                        <div class="songItems">
+                            <img src="" id="SongImg">
+                            <span class="songName"> Starboy </span>
+                            <span class="duration"> <span class="timeStamp">02:57
+                                    <i id="6" class="fa-solid songItemsPlay
+                                        fa-play-circle"></i></span></span>
+                        </div>
+                        <div class="songItems">
+                            <img src="" id="SongImg">
+                            <span class="songName"> Starboy </span>
+                            <span class="duration"> <span class="timeStamp">03:19
+                                    <i id="7" class="fa-solid songItemsPlay
+                                        fa-play-circle"></i></span></span>
+                        </div>
+                        <div class="songItems">
+                            <img src="" id="SongImg">
+                            <span class="songName"> Starboy </span>
+                            <span class="duration"> <span class="timeStamp">02:50
+                                    <i id="8" class="fa-solid songItemsPlay
+                                        fa-play-circle"></i></span></span>
+                        </div>
+                        <div class="songItems">
+                            <img src="" id="SongImg">
+                            <span class="songName"> Starboy </span>
+                            <span class="duration"> <span class="timeStamp">02:51
+                                    <i id="9" class="fa-solid songItemsPlay
+                                        fa-play-circle"></i></span></span>
+                        </div>
+                        <div class="songItems">
+                            <img src="" id="SongImg">
+                            <span class="songName"> Starboy </span>
+                            <span class="duration"> <span class="timeStamp">03:49
+                                    <i id="10" class="fa-solid songItemsPlay
+                                        fa-play-circle"></i></span></span>
+                        </div>
+                        <div class="songItems">
+                            <img src="" id="SongImg">
+                            <span class="songName"> Starboy </span>
+                            <span class="duration"> <span class="timeStamp">03:48
+                                    <i id="11" class="fa-solid songItemsPlay
+                                        fa-play-circle"></i></span></span>
+                        </div>
+                        <div class="songItems">
+                            <img src="" id="SongImg">
+                            <span class="songName"> Starboy </span>
+                            <span class="duration"> <span class="timeStamp">03:04
+                                    <i id="12" class="fa-solid songItemsPlay
+                                        fa-play-circle"></i></span></span>
+                        </div>
+                        <!-- <div class="recorder">
+                            <img src="recorder.gif" alt="">
+                        </div> -->
+                    </div>
+                </div>
+            </div>
+            <div class="songBanner"></div>
+        </div>
+
+        <!-- Bottom for Spotify play Tasks -->
+
+        <div class="bottom">
+            <input type="range" name="range" id="myProgressBar" min="0"
+                max="100" value="">
+            <div class="icons">
+                <!-- fontAwesomeIcons -->
+                <div class="mediaIcons">
+                    <i class="fa fa-2x fa-solid fa-backward" id="previous">&nbsp;</i>
+                    <i class="fa fa-2x fa-solid fa-play-circle" id="masterPlay">&nbsp;</i>
+                    <i class="fa fa-2x fa-solid fa-forward" id="next"></i>
+                </div>
+            </div>
+            <div class="songInfo">
+                <!-- <img src="" width="100px" alt="gif" id="gif"> -->
+                <span id="masterSongName">Starboy - The Weekend </span>
+            </div>
+        </div>
+    </body>
+</html>
+<script src="/Content/js/script.js"></script>
+<script src="https://kit.fontawesome.com/9703ba296f.js"
+            crossorigin="anonymous"></script>
