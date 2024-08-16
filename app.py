@@ -175,5 +175,66 @@ def search():
     search_result = search_song_on_spotify(query)
     return jsonify(search_result)
 
+# Load the KNN model and dataset
+model_path = 'collaborative filtering/best_knn_model.pkl'
+data_path = 'datasets/songs.csv'
+
+with open(model_path, 'rb') as file:
+    saved_model = pickle.load(file)
+
+df_songs = pd.read_csv(data_path)
+df_songs['user_id_code'] = df_songs['user_id'].astype('category').cat.codes
+df_songs['song_id_code'] = df_songs['song_id'].astype('category').cat.codes
+
+user_song_matrix = csr_matrix(
+    (df_songs['listen_count'], (df_songs['user_id_code'], df_songs['song_id_code'])),
+    shape=(df_songs['user_id_code'].nunique(), df_songs['song_id_code'].nunique())
+)
+
+def get_spotify_track_id(title, artist):
+    try:
+        results = sp.search(q=f'track:{title} artist:{artist}', type='track', limit=1)
+        if results['tracks']['items']:
+            return results['tracks']['items'][0]['id']
+        else:
+            return None
+    except Exception as e:
+        print(f"Error retrieving Spotify ID for {title} by {artist}: {e}")
+        return None
+
+def recommend_songs_random_user(n_neighbors=5, n_random=3):
+    user_id = random.choice(df_songs['user_id'].unique())
+    user_code = df_songs[df_songs['user_id'] == user_id]['user_id_code'].iloc[0]
+    user_vector = user_song_matrix[user_code]
+
+    distances, indices = saved_model.kneighbors(user_vector, n_neighbors=n_neighbors)
+    recommendations = []
+    random_indices = random.sample(list(indices.flatten()), n_random)
+
+    for index in random_indices:
+        song_title = df_songs.iloc[index]['title']
+        artist_name = df_songs.iloc[index]['artist_name']
+        spotify_id = get_spotify_track_id(song_title, artist_name)
+        if spotify_id:
+            track = sp.track(spotify_id)
+            recommendations.append({
+                'title': track['name'],
+                'artist': track['artists'][0]['name'],
+                'preview_url': track['preview_url'],
+                'external_url': track['external_urls']['spotify']
+            })
+    
+    return recommendations
+
+@app.route('/get_recommendations', methods=['POST'])
+def get_recommendations():
+    recommendations = recommend_songs_random_user()
+    return jsonify(recommendations)
+
+@app.route('/playlists')
+def playlists():
+    return render_template('playlists.html')
+
+
 if __name__ == '__main__':
     app.run(debug=True)
