@@ -10,6 +10,12 @@ from oauth2client.service_account import ServiceAccountCredentials
 import joblib
 import random
 from werkzeug.security import generate_password_hash, check_password_hash
+import cv2
+from transformers import pipeline, AutoImageProcessor, AutoModelForImageClassification
+from spotipy.oauth2 import SpotifyClientCredentials
+import os
+from PIL import Image
+
 
 app = Flask(__name__, static_folder='Content')
 mail="h1@gmail.com"
@@ -336,6 +342,122 @@ def get_spotify(title, artist):
     except Exception as e:
         print(f"Error retrieving Spotify ID for {title} by {artist}: {e}")
         return None
+
+
+
+
+
+# Set up Spotify API credentials
+client_id = "380a6b3535dc420a905dccf328a0e165"
+client_secret = "b0ca7947448246d28aafc40f49610cf4"
+
+# Authenticate with Spotify
+sp = spotipy.Spotify(auth_manager=SpotifyClientCredentials(client_id=client_id, client_secret=client_secret))
+
+# Load the image-based emotion detection model
+processor = AutoImageProcessor.from_pretrained("dima806/facial_emotions_image_detection")
+model = AutoModelForImageClassification.from_pretrained("dima806/facial_emotions_image_detection")
+
+# Create a pipeline for emotion detection
+emotion_classifier = pipeline("image-classification", model=model, feature_extractor=processor)
+
+# Define emotion to genre/characteristic mapping
+emotion_to_genre = {
+    'happy': ['pop', 'dance', 'electropop'],
+    'sad': ['acoustic', 'blues', 'soul'],
+    'angry': ['rock', 'metal', 'punk'],
+    'neutral': ['jazz', 'classical', 'ambient'],
+    'fear': ['dark', 'soundtrack', 'experimental'],
+    'surprise': ['pop', 'alternative', 'indie'],
+    'disgust': ['punk', 'grunge', 'hardcore']
+}
+
+# Capture image using cv2
+def capture_image():
+    cap = cv2.VideoCapture(0)
+
+    if not cap.isOpened():
+        print("Could not open webcam")
+        return None
+
+    ret, frame = cap.read()
+
+    if not ret:
+        print("Failed to capture image")
+        return None
+
+    cap.release()
+
+    image_path = "captured_image.jpg"
+    cv2.imwrite(image_path, frame)
+
+    return image_path
+
+# Function to detect emotion from the image
+def detect_emotion_from_image(image_path):
+    image = Image.open(image_path)
+    predictions = emotion_classifier(image)
+    detected_emotion = predictions[0]['label'].lower()
+    return detected_emotion
+
+# Function to get songs for the detected emotion
+def get_songs_for_emotion(emotion):
+    if emotion in emotion_to_genre:
+        genres = emotion_to_genre[emotion]
+        genre_query = " ".join([f"genre:{genre}" for genre in genres])
+        
+        results = sp.search(q=genre_query, type='track', limit=20)
+        tracks = results['tracks']['items']
+        
+        if not tracks:
+            return None
+        
+        # Prepare data for the table
+        songs_data = []
+        for track in tracks:
+            track_id = track['id']
+            track_name = track['name']
+            artist_name = track['artists'][0]['name']
+            album_name = track['album']['name']
+            spotify_link = track['external_urls']['spotify']
+            
+            # Append the track info to the songs_data list
+            songs_data.append({
+                "Track Name": track_name,
+                "Artist": artist_name,
+                "Album": album_name,
+                "Spotify Link": spotify_link
+            })
+        
+        # Convert the list of dictionaries to a DataFrame
+        songs_df = pd.DataFrame(songs_data)
+        return songs_df
+    else:
+        return None
+
+@app.route('/mood')
+def Mood():
+    return render_template('Mood.html')
+
+@app.route('/recommend', methods=['POST'])
+def recommend():
+    image_path = capture_image()
+    
+    if image_path:
+        detected_emotion = detect_emotion_from_image(image_path)
+        print(f"Detected Emotion: {detected_emotion}")  # Debug print
+        
+        if detected_emotion:
+            recommended_songs_df = get_songs_for_emotion(detected_emotion.lower())
+            
+            if recommended_songs_df is not None and not recommended_songs_df.empty:
+                songs = recommended_songs_df.to_dict(orient='records')
+                print(songs)  # Debug print
+                return render_template('recommendation.html', emotion=detected_emotion.capitalize(), songs=songs)
+    
+
+
+
 
 
 if __name__ == '__main__':

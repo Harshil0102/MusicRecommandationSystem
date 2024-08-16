@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <title>Sign Up</title>
+    <title>First Time User</title>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="keywords" content="Slide Login Form template Responsive, Login form web template, Flat Pricing tables, Flat Drop downs Sign up Web Templates, Flat Web Templates, Login sign up Responsive web template, SmartPhone Compatible web template, free webdesigns for Nokia, Samsung, LG, SonyEricsson, Motorola web design" />
@@ -39,10 +39,6 @@
 <!-- New toolbar-->
 <style>
 /* Include your styles here */
-.alert{
-    color: red !important;
-
-}
 </style>
 
 <div class="pull-right toggle-right-sidebar">
@@ -59,12 +55,7 @@
                 <span class="fa fa-play-circle fa-5x"></span>
             </div>
             <div class="header-left-bottom">
-                {% if error %}
-                <div class="alert alert-danger" role="alert" id="alrt">
-                    {{ error }}
-                </div>
-                {% endif %}
-                <form action="{{ url_for('signup') }}" method="post">
+                <form action="{{ url_for('login') }}" method="post">
                     <div class="icon1">
                         <span class="fa fa-user"></span>
                         <input type="email" placeholder="Email Address" id="username" name="mail" required>
@@ -75,7 +66,7 @@
                     </div>
                     <div class="icon1">
                       <span class="fa fa-lock"></span>
-                      <input type="password" id="retype_password" name="retype_password" placeholder="Retype-Password" required>
+                      <input type="password" id="password" name="password" placeholder="Retype-Password" required>
                       <!-- <i class="fa fa-music fa-5x"></i> -->
                   </div>
                     <!-- <div class="login-check">
@@ -88,7 +79,7 @@
                     <div class="links">
                         <!-- <p><a href="#">Forgot Password?</a></p> -->
                        
-                        <p class="right"><a href="/">Already have an account?</a></p>
+                        <p class="right"><a href="{{ url_for('login') }}">Already have an account?</a></p>
                         <div class="clear"></div>
                     </div>
                     <!-- <div class="tnc">
@@ -96,19 +87,19 @@
                     </div> -->
                 </form>    
             </div>
-            <!-- <div class="social">
+            <div class="social">
                 <ul>
                     <li>or login using : </li>
                     <li><a href="#" class="facebook"><span class="fa fa-facebook"></span></a></li>
                     <li><a href="#" class="twitter"><span class="fa fa-twitter"></span></a></li>
                     <li><a href="#" class="google"><span class="fa fa-google-plus"></span></a></li>
                 </ul>
-            </div> -->
+            </div>
         </div>
 
         <!-- copyright -->
         <div class="copyright">
-            <p>© 2024 LLC. All rights reserved | Design by <a href="#">RockerZ</a></p>
+            <p>© 2019 Slide Login Form. All rights reserved | Design by <a href="#">Your Company</a></p>
         </div>
         <!-- //copyright --> 
     </div>
